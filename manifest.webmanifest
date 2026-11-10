@@ -1,0 +1,25 @@
+{
+  "id": "./",
+  "name": "つもり貯金",
+  "short_name": "つもり貯金",
+  "description": "買わなかった今日を、ちいさな貯金に。",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#eff9f5",
+  "theme_color": "#dff4f2",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

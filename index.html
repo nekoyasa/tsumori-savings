@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#dff4f2">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>つもり貯金</title>
+<style>
+:root{--ink:#294b55;--muted:#718b91;--blue:#dceefa;--mint:#dff4ed;--line:#d8e9e8;--accent:#69aeb0;--white:#fff}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(160deg,#edf7fb,#eff9f5);color:var(--ink);font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif}
+main{max-width:680px;margin:auto;padding:22px 16px 48px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.brand{font-size:23px;font-weight:800;letter-spacing:.04em}.sub{font-size:12px;color:var(--muted);margin-top:3px}
+.panel{background:#ffffffd9;border:1px solid var(--line);border-radius:22px;padding:18px;margin:14px 0;box-shadow:0 8px 24px #5c92900d}
+.total{background:linear-gradient(130deg,#dceefa,#dff4ed)}.eyebrow{font-size:12px;color:#5d8188}.amount{font-size:36px;font-weight:800;letter-spacing:.02em;margin:4px 0}.count{font-size:12px;color:var(--muted)}
+h2{font-size:17px;margin:0 0 13px}label{display:block;font-size:13px;font-weight:650;margin:12px 0 6px}
+input,textarea{width:100%;border:1px solid var(--line);border-radius:12px;padding:12px;background:#fbfefe;color:var(--ink);font:inherit}textarea{min-height:72px;resize:vertical}
+input[type=file]{padding:9px;font-size:13px}input[type=number]{appearance:textfield}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.btn{border:0;border-radius:14px;padding:12px 16px;font:inherit;font-weight:700;cursor:pointer;background:#d8eeee;color:#315c62}.primary{background:#73b5b3;color:white}.soft{background:#edf5f5}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.preview{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.preview img{width:76px;height:76px;object-fit:cover;border-radius:12px;border:1px solid var(--line)}
+.entry{display:grid;grid-template-columns:94px 1fr;gap:12px;padding:13px 0;border-top:1px solid var(--line)}.thumbs{display:grid;grid-template-columns:1fr 1fr;gap:4px;align-content:start}.thumbs img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px}.placeholder{background:#e8f3f3;border-radius:12px;min-height:90px;display:grid;place-items:center;color:#8aa7a8;font-size:12px}
+.entry-title{font-weight:750}.entry-date{font-size:12px;color:var(--muted);margin:4px 0}.entry-amount{font-weight:800;color:#579b91}.memo{font-size:13px;white-space:pre-wrap;margin-top:5px;color:#587078}.small{font-size:11px;color:var(--muted)}.empty{text-align:center;color:var(--muted);padding:24px 8px;font-size:13px}
+.hidden{display:none!important}.section-head{display:flex;align-items:center;justify-content:space-between}.danger{color:#b76d75;background:#faeeee}
+.cal-head{display:flex;align-items:center;justify-content:space-between;margin:8px 0 12px}.cal-head strong{font-size:16px}.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}.weekday,.cal-day{min-width:0;text-align:center}.weekday{font-size:11px;color:var(--muted);padding:5px 0}.cal-day{border:1px solid transparent;background:#f6fbfa;border-radius:12px;min-height:58px;padding:6px 2px;color:var(--ink);font:inherit;cursor:pointer}.cal-day .day-num{font-size:13px}.cal-day .day-mark{display:block;font-size:10px;color:#579b91;margin-top:3px}.cal-day.has-record{background:#e4f3ee;border-color:#c7e5dc}.cal-day.selected{border-color:#69aeb0;background:#dceefa}.cal-day.other{opacity:.35}.day-heading{font-weight:750;font-size:14px;margin:18px 0 4px}
+@media(max-width:380px){.cal-day{min-height:50px}.calendar{gap:3px}}
+</style>
+</head>
+<body>
+<main>
+  <div class="top"><div><div class="brand">🫧 つもり貯金</div><div class="sub">買わなかった今日を、ちいさな貯金に。</div></div><span>🩵</span></div>
+  <section class="panel total">
+    <div class="eyebrow">これまでのつもり貯金</div>
+    <div class="amount" id="total">¥0</div>
+    <div class="count" id="count">0件の記録</div>
+  </section>
+  <section class="panel" id="formPanel">
+    <h2 id="formTitle">＋ つもり貯金を記録</h2>
+    <form id="recordForm">
+      <label for="title">何を我慢した？</label><input id="title" maxlength="80" placeholder="例：サンリオのガチャガチャ" required>
+      <div class="grid">
+        <div><label for="amount">金額（円）</label><input id="amount" type="number" min="1" step="1" placeholder="500" required></div>
+        <div><label for="when">我慢した日</label><input id="when" type="date" required></div>
+      </div>
+      <label for="photos">写真（複数枚選択OK）</label><input id="photos" type="file" accept="image/*" multiple>
+      <div class="preview" id="preview"></div>
+      <label for="memo">メモ（任意）</label><textarea id="memo" maxlength="1000" placeholder="どんなものだった？どんな気持ちで我慢した？"></textarea>
+      <div class="actions"><button class="btn primary" type="submit" id="saveBtn">記録する</button><button class="btn soft hidden" type="button" id="cancelBtn">編集をやめる</button></div>
+      <div class="small" style="margin-top:10px">※写真と記録は、このブラウザ内に保存されるよ。</div>
+    </form>
+  </section>
+  <section class="panel">
+    <div class="section-head"><h2>📅 記録カレンダー</h2></div>
+    <div class="cal-head"><button class="btn soft" id="prevMonth" aria-label="前の月">‹</button><strong id="monthLabel"></strong><button class="btn soft" id="nextMonth" aria-label="次の月">›</button></div>
+    <div class="calendar" id="calendar"></div>
+    <div class="day-heading" id="dayHeading"></div>
+    <div id="list"></div>
+  </section>
+  <section class="panel">
+    <h2>データのバックアップ</h2>
+    <div class="small">ブラウザのデータ消去や機種変更に備えて、定期的に書き出してね。</div>
+    <div class="actions"><button class="btn soft" id="exportBtn">バックアップを書き出す</button><label class="btn soft" style="margin:0;cursor:pointer">復元する<input id="importFile" type="file" accept="application/json" class="hidden"></label></div>
+  </section>
+</main>
+<script>
+const KEY='tsumori_records_v1';
+let records=load(), editing=null, keptImages=[];
+const $=id=>document.getElementById(id);
+function load(){try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch{return []}}
+function persist(){localStorage.setItem(KEY,JSON.stringify(records));render()}
+function yen(n){return '¥'+Number(n).toLocaleString('ja-JP')}
+function localDate(d=new Date()){const p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`}
+function dateKey(s){return String(s||'').slice(0,10)}
+function fmt(s){const d=new Date(String(s).length===10?s+'T00:00:00':s);return `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`}
+let viewMonth=new Date();viewMonth=new Date(viewMonth.getFullYear(),viewMonth.getMonth(),1);
+let selectedDay=localDate().slice(0,10);
+function render(){
+ $('total').textContent=yen(records.reduce((s,r)=>s+Number(r.amount),0));
+ $('count').textContent=`${records.length}件の記録`;
+ const y=viewMonth.getFullYear(),m=viewMonth.getMonth();
+ $('monthLabel').textContent=`${y}年${m+1}月`;
+ const first=new Date(y,m,1), offset=(first.getDay()+6)%7, days=new Date(y,m+1,0).getDate();
+ const prevDays=new Date(y,m,0).getDate();
+ const cells=[];
+ for(let i=0;i<42;i++){
+  let day, monthOffset=0;
+  if(i<offset){day=prevDays-offset+i+1;monthOffset=-1}
+  else if(i>=offset+days){day=i-offset-days+1;monthOffset=1}
+  else day=i-offset+1;
+  const d=new Date(y,m+monthOffset,day), key=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const count=records.filter(r=>dateKey(r.when)===key).length;
+  cells.push({day,key,count,monthOffset});
+ }
+ $('calendar').innerHTML='';
+ ['月','火','水','木','金','土','日'].forEach(w=>{const el=document.createElement('div');el.className='weekday';el.textContent=w;$('calendar').append(el)});
+ cells.forEach(c=>{
+  const b=document.createElement('button');b.type='button';b.className='cal-day'+(c.monthOffset?' other':'')+(c.count?' has-record':'')+(c.key===selectedDay?' selected':'');
+  b.innerHTML=`<span class="day-num">${c.day}</span>${c.count?`<span class="day-mark">● ${c.count}件</span>`:''}`;
+  b.onclick=()=>{selectedDay=c.key;if(c.monthOffset)viewMonth=new Date(Number(c.key.slice(0,4)),Number(c.key.slice(5,7))-1,1);render()};
+  $('calendar').append(b);
+ });
+ $('dayHeading').textContent=`${fmt(selectedDay)} の記録`;
+ const selected=records.filter(r=>dateKey(r.when)===selectedDay).sort((a,b)=>(b.created||'').localeCompare(a.created||''));
+ $('list').innerHTML=selected.length?'':'<div class="empty">この日の記録はまだないよ 🩵</div>';
+ selected.forEach(r=>{
+  const el=document.createElement('article');el.className='entry';
+  const pics=document.createElement('div');pics.className='thumbs';
+  if(r.images?.length) r.images.slice(0,4).forEach(src=>{const im=document.createElement('img');im.src=src;pics.append(im)});
+  else {pics.className='placeholder';pics.textContent='写真なし'}
+  const body=document.createElement('div');const title=document.createElement('div');title.className='entry-title';title.textContent=r.title;
+  const amount=document.createElement('div');amount.className='entry-amount';amount.textContent=yen(r.amount);
+  const date=document.createElement('div');date.className='entry-date';date.textContent='我慢した日：'+fmt(r.when);
+  const created=document.createElement('div');created.className='small';created.textContent='記録日時：'+fmt(r.created);
+  const memo=document.createElement('div');memo.className='memo';memo.textContent=r.memo||'';
+  const actions=document.createElement('div');actions.className='actions';
+  const edit=document.createElement('button');edit.className='btn soft';edit.textContent='編集';edit.onclick=()=>startEdit(r.id);
+  const del=document.createElement('button');del.className='btn danger';del.textContent='削除';del.onclick=()=>{if(confirm('この記録を削除する？')){records=records.filter(x=>x.id!==r.id);persist()}};
+  actions.append(edit,del);body.append(title,amount,date,created,memo,actions);el.append(pics,body);$('list').append(el);
+ });
+}
+function readFiles(files){return Promise.all([...files].map(f=>new Promise((resolve,reject)=>{const rd=new FileReader();rd.onload=()=>{const im=new Image();im.onload=()=>{const c=document.createElement('canvas');const scale=Math.min(1,1200/Math.max(im.width,im.height));c.width=Math.round(im.width*scale);c.height=Math.round(im.height*scale);c.getContext('2d').drawImage(im,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',.78))};im.onerror=reject;im.src=rd.result};rd.onerror=reject;rd.readAsDataURL(f)})))}
+function showPreview(){ $('preview').innerHTML='';keptImages.forEach((src,i)=>{const wrap=document.createElement('div');const im=document.createElement('img');im.src=src;im.title='写真をクリックすると外せるよ';im.onclick=()=>{keptImages.splice(i,1);showPreview()};wrap.append(im);$('preview').append(wrap)})}
+$('photos').addEventListener('change',async e=>{try{keptImages.push(...await readFiles(e.target.files));showPreview();e.target.value=''}catch{alert('写真を読み込めなかったよ。別の画像で試してね。')}});
+function reset(){editing=null;keptImages=[];$('recordForm').reset();$('when').value=localDate().slice(0,10);$('preview').innerHTML='';$('formTitle').textContent='＋ つもり貯金を記録';$('saveBtn').textContent='記録する';$('cancelBtn').classList.add('hidden')}
+function startEdit(id){const r=records.find(x=>x.id===id);if(!r)return;editing=id;keptImages=[...(r.images||[])];$('title').value=r.title;$('amount').value=r.amount;$('when').value=dateKey(r.when);$('memo').value=r.memo||'';showPreview();$('formTitle').textContent='記録を編集';$('saveBtn').textContent='変更を保存';$('cancelBtn').classList.remove('hidden');window.scrollTo({top:$('formPanel').offsetTop-10,behavior:'smooth'})}
+$('recordForm').addEventListener('submit',e=>{e.preventDefault();const old=records.find(r=>r.id===editing);const item={id:editing||crypto.randomUUID(),title:$('title').value.trim(),amount:Number($('amount').value),when:$('when').value,images:keptImages,memo:$('memo').value.trim(),created:old?.created||new Date().toISOString()};if(!item.title||item.amount<=0||!item.when)return;if(old)records=records.map(r=>r.id===editing?item:r);else records.push(item);persist();reset()});
+$('cancelBtn').onclick=reset;$('prevMonth').onclick=()=>{viewMonth=new Date(viewMonth.getFullYear(),viewMonth.getMonth()-1,1);render()};$('nextMonth').onclick=()=>{viewMonth=new Date(viewMonth.getFullYear(),viewMonth.getMonth()+1,1);render()};
+$('exportBtn').onclick=()=>{const blob=new Blob([JSON.stringify({version:1,records},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='tsumori-backup.json';a.click();URL.revokeObjectURL(a.href)};
+$('importFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const data=JSON.parse(await f.text());if(!Array.isArray(data.records))throw Error();if(confirm('現在の記録をバックアップ内容で置き換える？')){records=data.records;persist();reset();alert('復元できたよ！')}}catch{alert('バックアップファイルを読み込めなかったよ。')}e.target.value=''};
+reset();render();
+</script>
+<script>if ("serviceWorker" in navigator) { window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {})); }</script>
+</body></html>
