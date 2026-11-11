@@ -1,4 +1,4 @@
-const CACHE = "tsumori-pwa-v6";
+const CACHE = "tsumori-pwa-v10";
 const FILES = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./icon-192-round.png", "./icon-512-round.png"];
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(FILES)));
